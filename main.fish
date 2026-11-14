@@ -75,6 +75,26 @@ function play
     for i in (seq (count $sx))
         place $sx[$i] $sy[$i] "$C██$C_D"
     end
+    place $sx[1] $sy[1] "$C██$C_D"
+    placefood
+    drawscore
+
+    while true
+        set -l key (readkey)
+        set -l want $dir
+        switch $key
+            case w W \e\[A
+                set want up
+            case a A \e\[D
+                set want left
+            case s S \e\[B
+                set want down
+            case d D \e\[C
+                set want right
+            case q Q
+                return 1
+        end
+    end
 
 end
 
@@ -94,7 +114,7 @@ while true
         switch (waitkey)
             case r R
                 break
-            case *
+            case q Q
                 exit 0
         end
     end
