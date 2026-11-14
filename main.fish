@@ -33,3 +33,23 @@ function waitkey
     end
 end
 
+printf '\e[?1049h\e[?25l'
+stty -echo -icanon min 0 time 1
+printf '\e[2J'
+
+say 5 8 "\e[1;38;5;118m SNAKE \e[0m"
+say 11 9 "press any key to start"
+waitkey >/dev/null
+
+while true
+    play
+    test $status -eq 1; and break
+    while true:
+        switch (waitkey)
+            case r R
+                break
+            case *
+                exit 0
+        end
+    end
+end
