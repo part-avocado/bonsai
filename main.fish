@@ -94,6 +94,56 @@ function play
             case q Q
                 return 1
         end
+        set -l nx $sx[1]
+        set -l ny $sy[1]
+        switch $dir
+            case up
+                set ny (math $ny -1)
+            case down
+                set ny (math $ny +1)
+            case left
+                set nx (math $nx -1)
+            case right
+                set nx (math $nx +1)
+        end
+
+        set -l dead 0
+        if test $nx -lt 0 -o $nx -ge $W -o $ny -lt 0 -o $ny -ge $H
+            set dead 1
+        else
+            for i in (seq (math (count $sx) -1 ))
+                if test $sx[$i] -eq $nx -a $sy[$i] -eq $ny
+                    set dead 1
+                    break
+                end
+            end
+        end
+
+        if test $dead -eq 1
+            test $score -gt $best; and set -g best $score
+            set -l row (math $OY +1 +floor\($H /2\))
+            set -l col (math $OX + $W -6)
+            say (math $row -1) $col "\e[1;37;41m                 $C_D"
+            say $row $col           "\e[1;37;41m    GAME  OVER   $C_D"
+            say (math $row +1) $col "\e[1;37;41m    [r] Retry    $C_D"
+            say (math $row +2) $col "\e[1;37;41m     [q] Quit    $C_D"
+            return 0
+        end
+
+        put $sx[1] $sy[1] $C██$C_D"
+        set -g sx $nx $sx
+        set -g xy $ny $sy
+        put $nx $ny $C██$C_D"
+
+        if test $nx -eq $fx -a $ny -eq $fy
+            set -g score (math $score +1)
+            placefood
+            drawscore
+        else
+            put $sx[-1] $sy[-1] "  "
+            set -e sx[-1]
+            set -e sy[-1]
+        end          
     end
 
 end
