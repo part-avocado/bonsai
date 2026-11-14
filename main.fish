@@ -50,6 +50,22 @@ function drawframe
     say (math $OY -1) $OX "\e[1;38;5;118m SNAKE $C_D"
 end
 
+function placefood
+    while true
+        set -g fx (random 0 (math $W - 1))
+        set -g fy (random 0 (math $H - 1))
+        set -l hit 0
+        for i in (seq (count $sx))
+            if test $sx[$i] -eq $fx -a $sy[$i] -eq $fy
+                set hit 1
+                break
+            end
+        end
+        test $hit -eq 0; and break
+    end
+    place $fx $fy "$C()$C_D"
+end
+
 function play
     set -g sx 14 13 12
     set -g sy 7 7 7
@@ -57,9 +73,9 @@ function play
     set -g score 0
     drawframe
     for i in (seq (count $sx))
-        put $sx[$i] $sy[$i] "$C██$C_D"
+        place $sx[$i] $sy[$i] "$C██$C_D"
     end
-    
+
 end
 
 # main run
