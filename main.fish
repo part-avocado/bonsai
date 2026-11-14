@@ -16,11 +16,16 @@ set -g type (stty -g)
 
 function clean --on-event fish_exit
     stty $type 2>/dev/null
+    printf '\e[?25h\e[?1049l'
 end
 
 # place in form (x,y, string)
 function place 
     printf '\e[%d;%dH%b' (math $OY + 1 + $argv[2]) (math $OX + 1 + 2 \* $argv[1]) $argv[3]
+end
+
+function say
+    printf '\e[%d;%dH%b' $argv[1] $argv[2] $argv[3]
 end
 
 function keydown
@@ -29,13 +34,13 @@ end
 
 function waitkey
     while true
-        set -l k (readkey)
+        set -l k (keydown)
         test -n "$k"; and echo -n $k; and return 
     end
 end
 
 function drawscore
-    say (math +$OY + $H +2) $OX "Score \e[1m$score$C_D Best \e[1m$best$C_D"
+    say (math $OY + $H +2) $OX "Score \e[1m$score$C_D Best \e[1m$best$C_D"
 end
 
 function drawframe
@@ -43,8 +48,8 @@ function drawframe
     set -l bar (string repeat -n (math 2 \* $W) =)
     say $OY $OX "$C╔$bar╗$C_D"
     for n in (seq 1 $H)
-        say (math $OY + $y) $OX "$C║$C_D"
-        say (math $OY + $y) (math $OX + 2 \* $W +1) "$C║"
+        say (math $OY + $n) $OX "$C║$C_D"
+        say (math $OY + $n) (math $OX + 2 \* $W +1) "$C║$C_D"
     end
     say (math $OY + $H +1) $OX "$C╚$bar╝$C_D"
     say (math $OY -1) $OX "\e[1;38;5;118m SNAKE $C_D"
@@ -75,12 +80,11 @@ function play
     for i in (seq (count $sx))
         place $sx[$i] $sy[$i] "$C██$C_D"
     end
-    place $sx[1] $sy[1] "$C██$C_D"
     placefood
     drawscore
 
     while true
-        set -l key (readkey)
+        set -l key (keydown)
         set -l want $dir
         switch $key
             case w W \e\[A
@@ -94,6 +98,14 @@ function play
             case q Q
                 return 1
         end
+
+        switch "$want$dir"
+            case updown downup leftright rightleft
+
+            case '*'
+                set dir $want
+        end
+
         set -l nx $sx[1]
         set -l ny $sy[1]
         switch $dir
@@ -121,8 +133,8 @@ function play
 
         if test $dead -eq 1
             test $score -gt $best; and set -g best $score
-            set -l row (math $OY +1 +floor\($H /2\))
-            set -l col (math $OX + $W -6)
+            set -l row (math "$OY +1 +floor($H /2)")
+            set -l col (math $OX + $W - 8)
             say (math $row -1) $col "\e[1;37;41m                 $C_D"
             say $row $col           "\e[1;37;41m    GAME  OVER   $C_D"
             say (math $row +1) $col "\e[1;37;41m    [r] Retry    $C_D"
@@ -130,20 +142,19 @@ function play
             return 0
         end
 
-        put $sx[1] $sy[1] $C██$C_D"
         set -g sx $nx $sx
-        set -g xy $ny $sy
-        put $nx $ny $C██$C_D"
+        set -g sy $ny $sy
 
         if test $nx -eq $fx -a $ny -eq $fy
             set -g score (math $score +1)
             placefood
             drawscore
         else
-            put $sx[-1] $sy[-1] "  "
+            place $sx[-1] $sy[-1] "  "
             set -e sx[-1]
             set -e sy[-1]
-        end          
+        end
+        place $nx $ny "$C██$C_D"
     end
 
 end
@@ -160,7 +171,7 @@ waitkey >/dev/null
 while true
     play
     test $status -eq 1; and break
-    while true:
+    while true
         switch (waitkey)
             case r R
                 break
