@@ -1,1 +1,2 @@
-# haven-bonsai
+# Haven Bonsai
+It's a snake game in fish!
