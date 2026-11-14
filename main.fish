@@ -42,7 +42,8 @@ function drawframe
         say (math $OY + $y) $OX "$C║$C_D"
         say (math $OY + $y) (math $OX + 2 \* $W +1) "$C║"
     end
-    
+    say (math $OY + $H +1) $OX "$C╚$bar╝$C_D"
+    say (math $OY -1) $OX "\e[1;38;5;118m SNAKE $C_D"
 end
 
 
