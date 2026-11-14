@@ -9,6 +9,7 @@ set -g OX 3
 set -g OY 2
 
 set -g C '\e[0;92m'
+set -g C_D '\e[0m'
 
 set -g best 0
 set -g type (stty -g)
@@ -33,6 +34,20 @@ function waitkey
     end
 end
 
+function drawframe
+    printf '\e[2J'
+    set -l bar (string repeat -n (math 2 \* $W) =)
+    say $OY $OX "$C╔$bar╗$C_D"
+    for n in (seq 1 $H)
+        say (math $OY + $y) $OX "$C║$C_D"
+        say (math $OY + $y) (math $OX + 2 \* $W +1) "$C║"
+    end
+    
+end
+
+
+
+# main run
 printf '\e[?1049h\e[?25l'
 stty -echo -icanon min 0 time 1
 printf '\e[2J'
