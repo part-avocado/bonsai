@@ -25,3 +25,11 @@ end
 function keydown
     dd bs=8 count=1 2>/dev/null | string collect -N
 end
+
+function waitkey
+    while true
+        set -l k (readkey)
+        test -n "$k"; and echo -n $k; and return 
+    end
+end
+
