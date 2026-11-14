@@ -34,6 +34,10 @@ function waitkey
     end
 end
 
+function drawscore
+    say (math +$OY + $H +2) $OX "Score \e[1m$score$C_D Best \e[1m$best$C_D"
+end
+
 function drawframe
     printf '\e[2J'
     set -l bar (string repeat -n (math 2 \* $W) =)
@@ -46,7 +50,17 @@ function drawframe
     say (math $OY -1) $OX "\e[1;38;5;118m SNAKE $C_D"
 end
 
-
+function play
+    set -g sx 14 13 12
+    set -g sy 7 7 7
+    set -g dir right
+    set -g score 0
+    drawframe
+    for i in (seq (count $sx))
+        put $sx[$i] $sy[$i] "$C██$C_D"
+    end
+    
+end
 
 # main run
 printf '\e[?1049h\e[?25l'
